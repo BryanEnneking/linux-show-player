@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt, QT_TRANSLATE_NOOP
+from PyQt5.QtCore import Qt, QSize, QT_TRANSLATE_NOOP
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import (
     QVBoxLayout,
@@ -25,15 +25,22 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QLabel,
     QLineEdit,
+    QPushButton,
+    QDialog,
+    QGridLayout,
+    QDialogButtonBox,
+    QToolButton,
 )
 
 from lisp.ui.settings.pages import SettingsPage
 from lisp.ui.ui_utils import translate, css_to_dict, dict_to_css
 from lisp.ui.widgets import ColorButton
+from lisp.ui.icons import IconTheme
 
 
 class Appearance(SettingsPage):
     Name = QT_TRANSLATE_NOOP("SettingsPageName", "Appearance")
+    iconName = "music"
 
     def __init__(self, **kwargs):
         super().__init__()
@@ -46,6 +53,12 @@ class Appearance(SettingsPage):
 
         self.cueNameEdit = QLineEdit(self.cueNameGroup)
         self.cueNameGroup.layout().addWidget(self.cueNameEdit)
+
+        # Icon
+        self.cueIcon = QPushButton("")
+        self.cueIcon.setIcon(IconTheme.get(self.iconName))
+        self.cueIcon.clicked.connect(self.showIconPicker)
+        self.cueNameGroup.layout().addWidget(self.cueIcon)
 
         # Description
         self.cueDescriptionGroup = QGroupBox(self)
@@ -117,12 +130,41 @@ class Appearance(SettingsPage):
         self.setGroupEnabled(self.fontSizeGroup, enabled)
         self.setGroupEnabled(self.colorGroup, enabled)
 
+    def showIconPicker(self):
+        COLUMNS = 4
+        dialog = QDialog(self)
+        dialog.setWindowTitle(translate("CueAppearanceSettings", "Choose an icon"))
+        layout = QVBoxLayout(dialog)
+
+        grid = QGridLayout()
+        layout.addLayout(grid)
+
+        for index, name in enumerate(["led", "music", "speaker", "stop", "pause", "bullseye", "collection"]):
+            btn = QToolButton()
+            btn.setIcon(IconTheme.get(name))
+            btn.setIconSize(QSize(48, 48))
+            btn.setStyleSheet("border: none; padding: 5px; background: transparent;")
+            btn.clicked.connect(lambda _, n=name: self.selectIcon(n, dialog))
+            grid.addWidget(btn, index // COLUMNS, index % COLUMNS)
+
+        buttons = QDialogButtonBox(QDialogButtonBox.Cancel)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        dialog.exec_()
+
+    def selectIcon(self, name, dialog):
+        self.iconName = name
+        self.cueIcon.setIcon(IconTheme.get(name))
+        dialog.accept()
+
     def getSettings(self):
         settings = {}
         style = {}
 
         if self.isGroupEnabled(self.cueNameGroup):
             settings["name"] = self.cueNameEdit.text()
+            settings["icon"] = self.iconName
         if self.isGroupEnabled(self.cueDescriptionGroup):
             settings["description"] = self.cueDescriptionEdit.toPlainText()
         if self.isGroupEnabled(self.colorGroup):
@@ -141,6 +183,9 @@ class Appearance(SettingsPage):
     def loadSettings(self, settings):
         if "name" in settings:
             self.cueNameEdit.setText(settings["name"])
+        if "icon" in settings:
+            self.iconName = settings["icon"]
+            self.cueIcon.setIcon(IconTheme.get(self.iconName))
         if "description" in settings:
             self.cueDescriptionEdit.setPlainText(settings["description"])
         if "stylesheet" in settings:
