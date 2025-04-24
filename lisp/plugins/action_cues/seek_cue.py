@@ -52,6 +52,7 @@ class SeekCue(Cue):
 
     target_id = Property()
     time = Property(default=-1)
+    icon = Property("bullseye")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

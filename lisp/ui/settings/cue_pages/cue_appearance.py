@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Linux Show Player.  If not, see <http://www.gnu.org/licenses/>.
 
+import glob
+import os
 from PyQt5.QtCore import Qt, QSize, QT_TRANSLATE_NOOP
 from PyQt5.QtGui import QFontDatabase
 from PyQt5.QtWidgets import (
@@ -36,6 +38,7 @@ from lisp.ui.settings.pages import SettingsPage
 from lisp.ui.ui_utils import translate, css_to_dict, dict_to_css
 from lisp.ui.widgets import ColorButton
 from lisp.ui.icons import IconTheme
+from lisp import ICON_THEMES_DIR
 
 
 class Appearance(SettingsPage):
@@ -56,7 +59,6 @@ class Appearance(SettingsPage):
 
         # Icon
         self.cueIcon = QPushButton("")
-        self.cueIcon.setIcon(IconTheme.get(self.iconName))
         self.cueIcon.clicked.connect(self.showIconPicker)
         self.cueNameGroup.layout().addWidget(self.cueIcon)
 
@@ -139,11 +141,19 @@ class Appearance(SettingsPage):
         grid = QGridLayout()
         layout.addLayout(grid)
 
-        for index, name in enumerate(["led", "music", "speaker", "stop", "pause", "bullseye", "collection"]):
+        icon_names = set()
+        dialog.setWindowTitle(ICON_THEMES_DIR + "/lisp/cues")
+        for path in glob.iglob(os.path.join(ICON_THEMES_DIR + "/lisp/cues", "**"), recursive=False):
+            if os.path.isfile(path):
+                name, ext = os.path.splitext(os.path.basename(path))
+                icon_names.add(name)
+
+#        for index, name in enumerate(["led", "music", "speaker", "microphone", "faders", "stop", "pause", "bullseye", "collection"]):
+        for index, name in enumerate(set(list(icon_names)[:20])):
             btn = QToolButton()
             btn.setIcon(IconTheme.get(name))
             btn.setIconSize(QSize(48, 48))
-            btn.setStyleSheet("border: none; padding: 5px; background: transparent;")
+            btn.setStyleSheet("border:none;padding:5px;background:transparent;")
             btn.clicked.connect(lambda _, n=name: self.selectIcon(n, dialog))
             grid.addWidget(btn, index // COLUMNS, index % COLUMNS)
 
@@ -156,6 +166,7 @@ class Appearance(SettingsPage):
     def selectIcon(self, name, dialog):
         self.iconName = name
         self.cueIcon.setIcon(IconTheme.get(name))
+        self.cueIcon.setIconSize(QSize(17, 17))
         dialog.accept()
 
     def getSettings(self):
@@ -186,6 +197,7 @@ class Appearance(SettingsPage):
         if "icon" in settings:
             self.iconName = settings["icon"]
             self.cueIcon.setIcon(IconTheme.get(self.iconName))
+            self.cueIcon.setIconSize(QSize(17, 17))
         if "description" in settings:
             self.cueDescriptionEdit.setPlainText(settings["description"])
         if "stylesheet" in settings:
