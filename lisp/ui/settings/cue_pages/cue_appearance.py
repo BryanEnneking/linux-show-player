@@ -142,25 +142,24 @@ class Appearance(SettingsPage):
         layout.addLayout(grid)
 
         icon_names = set()
-        dialog.setWindowTitle(ICON_THEMES_DIR + "/lisp/cues")
-        for path in glob.iglob(os.path.join(ICON_THEMES_DIR + "/lisp/cues", "**"), recursive=False):
+        path = os.path.join(ICON_THEMES_DIR + "/lisp/cues", "**")
+        for path in glob.iglob(path, recursive=False):
             if os.path.isfile(path):
                 name, ext = os.path.splitext(os.path.basename(path))
                 icon_names.add(name)
+        icon_names = sorted(icon_names)
 
-#        for index, name in enumerate(["led", "music", "speaker", "microphone", "faders", "stop", "pause", "bullseye", "collection"]):
-        for index, name in enumerate(set(list(icon_names)[:20])):
+        for index, name in enumerate(icon_names):
             btn = QToolButton()
             btn.setIcon(IconTheme.get(name))
             btn.setIconSize(QSize(48, 48))
-            btn.setStyleSheet("border:none;padding:5px;background:transparent;")
+            btn.setStyleSheet("border:none;padding:8px;background:transparent;")
             btn.clicked.connect(lambda _, n=name: self.selectIcon(n, dialog))
             grid.addWidget(btn, index // COLUMNS, index % COLUMNS)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Cancel)
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
-
         dialog.exec_()
 
     def selectIcon(self, name, dialog):
