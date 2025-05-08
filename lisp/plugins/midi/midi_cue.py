@@ -49,6 +49,7 @@ class MidiCue(Cue):
     )
 
     message = Property(default="")
+    icon = Property("network")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -58,8 +58,9 @@ class Appearance(SettingsPage):
         self.cueNameGroup.layout().addWidget(self.cueNameEdit)
 
         # Icon
+        self.iconSelectorDialog = None
         self.cueIcon = QPushButton("")
-        self.cueIcon.clicked.connect(self.showIconPicker)
+        self.cueIcon.clicked.connect(self.showIconSelector)
         self.cueNameGroup.layout().addWidget(self.cueIcon)
 
         # Description
@@ -132,12 +133,11 @@ class Appearance(SettingsPage):
         self.setGroupEnabled(self.fontSizeGroup, enabled)
         self.setGroupEnabled(self.colorGroup, enabled)
 
-    def showIconPicker(self):
-        COLUMNS = 4
+    def buildIconSelector(self):
+        COLUMNS = 5
         dialog = QDialog(self)
-        dialog.setWindowTitle(translate("CueAppearanceSettings", "Choose an icon"))
+        dialog.setWindowTitle(translate("CueAppearanceSettings", "Select Icon"))
         layout = QVBoxLayout(dialog)
-
         grid = QGridLayout()
         layout.addLayout(grid)
 
@@ -153,14 +153,30 @@ class Appearance(SettingsPage):
             btn = QToolButton()
             btn.setIcon(IconTheme.get(name))
             btn.setIconSize(QSize(48, 48))
-            btn.setStyleSheet("border:none;padding:8px;background:transparent;")
+            btn.setStyleSheet(
+            """
+            QToolButton {
+                border: 3px solid transparent;
+                padding: 8px;
+                background: transparent;
+            }
+            QToolButton:hover {
+            	border: 3px solid #4499EE;
+            }
+            """
+            )
             btn.clicked.connect(lambda _, n=name: self.selectIcon(n, dialog))
             grid.addWidget(btn, index // COLUMNS, index % COLUMNS)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Cancel)
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
-        dialog.exec_()
+        return dialog
+
+    def showIconSelector(self):
+        if self.iconSelectorDialog is None:
+        	self.iconSelectorDialog = self.buildIconSelector()
+        self.iconSelectorDialog.exec_()
 
     def selectIcon(self, name, dialog):
         self.iconName = name

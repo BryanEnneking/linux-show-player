@@ -1,0 +1,19 @@
+<svg width="150" height="150" viewBox="0 0 17 17">
+  <path fill="white" opacity="0.8" fill-rule="evenodd" d="
+    M0,0H3V17H0V0Z
+    M0.5,2H2.5V3.5H0.5V2Z
+    M0.5,7.25H2.5V8.75H0.5V7.25Z
+    M0.5,12.5H2.5V14H0.5V12.5Z
+
+    M14,0H17V17H14V0Z
+    M14.5,2H16.5V3.5H14.5V2Z
+    M14.5,7.25H16.5V8.75H14.5V7.25Z
+    M14.5,12.5H16.5V14H14.5V12.5Z
+  "/>
+
+  <path fill="white" opacity="0.8" d="
+    M3,2H14V3H3V2Z
+    M3,14H14V15H3V14Z
+  " />
+</svg>
+    M6.5,5L11.5,8.5L6.5,12Z
